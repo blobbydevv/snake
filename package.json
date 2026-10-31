@@ -1,0 +1,16 @@
+{
+  "name": "neon-snake-live",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Snake controlled by your TikTok LIVE chat. Viewers type up/down/left/right, the snake moves.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "demo": "node server.js --demo"
+  },
+  "engines": { "node": ">=18" },
+  "dependencies": {
+    "tiktok-live-connector": "^2.5.0",
+    "ws": "^8.18.0"
+  }
+}

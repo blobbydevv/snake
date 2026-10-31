@@ -1,0 +1,8 @@
+{
+  "username": "@your_tiktok_handle",
+  "port": 8080,
+  "mode": "vote",
+  "voteWindowMs": 1200,
+  "sessionId": "",
+  "ttTargetIdc": ""
+}

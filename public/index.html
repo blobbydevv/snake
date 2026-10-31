@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Neon Snake Live</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bungee&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&display=swap">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<main class="stage">
+  <section class="left">
+    <div class="hud">
+      <div class="score"><small>Score</small><span id="scoreval">0</span></div>
+      <div class="meta">
+        <div class="combo" id="combo">COMBO &times;1</div>
+        <div>Best <b id="best">0</b> &middot; Speed <b id="speed">1</b> &middot; Length <b id="len">3</b></div>
+      </div>
+    </div>
+
+    <div class="boardwrap">
+      <div class="board"><canvas id="game" width="680" height="680"></canvas></div>
+      <div class="overlay" id="overlay">
+        <div>
+          <h1 id="ovtitle">Neon Snake Live</h1>
+          <p id="ovtext">Chat steers the snake. Type <b>up</b>, <b>down</b>, <b>left</b> or <b>right</b>.</p>
+          <span class="cta" id="ovcta">Click to start</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="votepanel" id="votepanel">
+      <div class="votetimer"><i id="votetimer"></i></div>
+      <div class="bars">
+        <div class="bar" id="bar-left"><span class="arrow">&#9664;</span><span class="n">0</span></div>
+        <div class="bar" id="bar-up"><span class="arrow">&#9650;</span><span class="n">0</span></div>
+        <div class="bar" id="bar-down"><span class="arrow">&#9660;</span><span class="n">0</span></div>
+        <div class="bar" id="bar-right"><span class="arrow">&#9654;</span><span class="n">0</span></div>
+      </div>
+    </div>
+  </section>
+
+  <aside class="side">
+    <div class="status off" id="status"><i></i><span>Connecting…</span></div>
+
+    <div class="panel">
+      <h2>Top drivers</h2>
+      <ol class="leaders" id="leaders"></ol>
+    </div>
+
+    <div class="panel hype">
+      <h2>Like goal <small>double points</small></h2>
+      <div class="hypetrack"><i id="hypebar"></i></div>
+    </div>
+
+    <div class="panel grow feedpanel">
+      <h2>Room</h2>
+      <ul class="feed" id="feed"></ul>
+    </div>
+
+    <div class="opts">
+      <button class="toggle" id="modebtn" aria-pressed="true"><span class="sw"></span>Chat votes</button>
+      <button class="toggle" id="autobtn" aria-pressed="true"><span class="sw"></span>Auto restart</button>
+      <button class="toggle" id="wrapbtn" aria-pressed="false"><span class="sw"></span>Walls kill</button>
+      <button class="toggle" id="sfxbtn" aria-pressed="true"><span class="sw"></span>Sound on</button>
+    </div>
+  </aside>
+</main>
+
+<script src="game.js"></script>
+<script src="live.js"></script>
+</body>
+</html>
