@@ -13,26 +13,36 @@
 
 <main class="stage">
   <section class="left">
-    <div class="hud">
-      <div class="score"><small>Score</small><span id="scoreval">0</span></div>
-      <div class="meta">
-        <div class="combo" id="combo">COMBO &times;1</div>
-        <div>Best <b id="best">0</b> &middot; Speed <b id="speed">1</b> &middot; Length <b id="len">3</b></div>
-      </div>
-    </div>
-
     <div class="boardwrap">
-      <div class="board"><canvas id="game" width="680" height="680"></canvas></div>
+      <div class="scorebar">
+        <span class="label">Score</span>
+        <span class="val" id="scoreval">0</span>
+      </div>
+
+      <div class="frame">
+        <div class="pit"><canvas id="game" width="672" height="672"></canvas></div>
+      </div>
+
       <div class="overlay" id="overlay">
         <div>
           <h1 id="ovtitle">Neon Snake Live</h1>
-          <p id="ovtext">Chat steers the snake. Type <b>up</b>, <b>down</b>, <b>left</b> or <b>right</b>.</p>
+          <p id="ovtext">The autopilot fills the whole board, every round.</p>
           <span class="cta" id="ovcta">Click to start</span>
         </div>
       </div>
     </div>
 
-    <div class="votepanel" id="votepanel">
+    <div class="fillrow">
+      <div class="filltrack"><i id="fillbar"></i></div>
+      <div class="fillmeta">
+        <span><b id="fillpct">1%</b> filled</span>
+        <span><b id="len">3</b> / <span id="cap">256</span> squares</span>
+        <span id="elapsed">0m 00s</span>
+        <span class="combo" id="combo">COMBO &times;1</span>
+      </div>
+    </div>
+
+    <div class="votepanel" id="votepanel" hidden>
       <div class="votetimer"><i id="votetimer"></i></div>
       <div class="bars">
         <div class="bar" id="bar-left"><span class="arrow">&#9664;</span><span class="n">0</span></div>
@@ -46,8 +56,24 @@
   <aside class="side">
     <div class="status off" id="status"><i></i><span>Connecting…</span></div>
 
-    <div class="panel">
-      <h2>Top drivers</h2>
+    <div class="panel ai">
+      <h2>Autopilot</h2>
+      <p class="blurb">Follows a loop that covers all <b id="cap2">256</b> squares, so it cannot trap itself.</p>
+      <div class="speedrow">
+        <button data-speed="chill" aria-pressed="false">Chill</button>
+        <button data-speed="normal" aria-pressed="true">Normal</button>
+        <button data-speed="turbo" aria-pressed="false">Turbo</button>
+        <button data-speed="hyper" aria-pressed="false">Hyper</button>
+      </div>
+      <div class="aistats">
+        <span>Clears <b id="wins">0</b></span>
+        <span>Best <b id="best">0</b></span>
+        <span><b id="speedval">13/s</b></span>
+      </div>
+    </div>
+
+    <div class="panel leaderpanel">
+      <h2 id="leadertitle">Top supporters</h2>
       <ol class="leaders" id="leaders"></ol>
     </div>
 
@@ -62,14 +88,16 @@
     </div>
 
     <div class="opts">
-      <button class="toggle" id="modebtn" aria-pressed="true"><span class="sw"></span>Chat votes</button>
+      <button class="toggle" id="aibtn" aria-pressed="true"><span class="sw"></span>Autopilot on</button>
+      <button class="toggle" id="shortbtn" aria-pressed="true"><span class="sw"></span>Loop + shortcuts</button>
       <button class="toggle" id="autobtn" aria-pressed="true"><span class="sw"></span>Auto restart</button>
-      <button class="toggle" id="wrapbtn" aria-pressed="false"><span class="sw"></span>Walls kill</button>
+      <button class="toggle" id="modebtn" aria-pressed="true"><span class="sw"></span>Chat votes</button>
       <button class="toggle" id="sfxbtn" aria-pressed="true"><span class="sw"></span>Sound on</button>
     </div>
   </aside>
 </main>
 
+<script src="ai.js"></script>
 <script src="game.js"></script>
 <script src="live.js"></script>
 </body>
