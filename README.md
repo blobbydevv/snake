@@ -140,6 +140,7 @@ faster, much more chaotic. Toggle it with the *Chat votes* button.
 | Autopilot / Chat drives | Who steers. Switching starts a fresh round |
 | Loop + shortcuts / Pure loop | Shortcuts are faster; the pure loop is the slow, hypnotic version |
 | Chill / Normal / Turbo / Hyper | Steps per second — 8, 13, 21 and 31 |
+| Shiver | The body's idle wobble. It fades out as the board fills, and off is perfectly still |
 | Chat votes / Last comment wins | How chat commands are applied, when chat is driving |
 | Auto restart | Starts the next round 5 seconds after a game over — leave on for unattended streams |
 | Walls kill / Walls wrap | Wrap makes rounds much longer, which is kinder when chat is driving |

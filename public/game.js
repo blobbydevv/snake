@@ -67,6 +67,9 @@
     let state = "ready", stepMs = opts.startSpeed, acc = 0, last = 0;
     let shake = 0, flash = 0, particles = [], pops = [], wrapMode = false;
     let pendingCredit = null, movedBy = null, doubleUntil = 0, autoSpeed = false;
+    let wiggleOn = true;
+    const WIGGLE_AMP = CELL * .075;
+    const WIGGLE_MAX = (CELL - CELL * .82) / 2 - 0.9;   // never let neighbouring runs touch
     const listeners = {};
 
     function emit(name, payload) {
@@ -242,27 +245,75 @@
       }
       return pts;
     }
-    function tracePath(pts) {
-      ctx.beginPath();
-      ctx.moveTo(pts[0].x, pts[0].y);
-      for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y);
+    /*
+     * A shiver along the body: each point slides a little sideways to its own
+     * direction of travel, on a wave that runs from head to tail. The head barely
+     * moves so the face stays readable; the tail swings most.
+     */
+    function wiggle(pts, time) {
+      if (!wiggleOn || pts.length < 2) return pts;
+      const out = new Array(pts.length);
+      const speedScale = Math.min(1.6, 150 / stepMs);
+      // as the board fills there is no room left to shiver in, so fade it out
+      const densityScale = 1 - (snake.length / CAPACITY) * .8;
+      for (let i = 0; i < pts.length; i++) {
+        const a = pts[Math.max(0, i - 1)];
+        const b = pts[Math.min(pts.length - 1, i + 1)];
+        let tx = b.x - a.x, ty = b.y - a.y;
+        const len = Math.hypot(tx, ty);
+        if (len < 0.001) { out[i] = pts[i]; continue; }
+        // unit normal to the local direction of travel
+        const nx = -ty / len, ny = tx / len;
+        const taper = 0.25 + 0.75 * (i / (pts.length - 1 || 1));
+        const amp = Math.min(WIGGLE_MAX, WIGGLE_AMP * taper * speedScale * densityScale);
+        const offset = Math.sin(time / 85 - i * 0.6) * amp;
+        out[i] = { x: pts[i].x + nx * offset, y: pts[i].y + ny * offset };
+      }
+      return out;
     }
 
-    /* Timber-coloured body: dark outline, warm fill, highlight along the top. */
+    /*
+     * One path for the whole body, with the corners actually rounded instead of
+     * relying on a round line join — a join only rounds the outer edge of a bend
+     * and leaves the inside square, which is what made fast turns look pinched.
+     */
+    function bodyPath(pts, radius) {
+      const p = new Path2D();
+      p.moveTo(pts[0].x, pts[0].y);
+      for (let i = 1; i < pts.length - 1; i++) {
+        const a = pts[i - 1], b = pts[i], c = pts[i + 1];
+        const v1x = b.x - a.x, v1y = b.y - a.y;
+        const v2x = c.x - b.x, v2y = c.y - b.y;
+        const l1 = Math.hypot(v1x, v1y), l2 = Math.hypot(v2x, v2y);
+        if (l1 < 0.001 || l2 < 0.001) continue;
+        const bend = Math.abs(v1x * v2y - v1y * v2x) / (l1 * l2);
+        if (bend < 0.02) { p.lineTo(b.x, b.y); continue; }   // effectively straight
+        const r = Math.min(radius, l1 / 2, l2 / 2);
+        p.lineTo(b.x - v1x / l1 * r, b.y - v1y / l1 * r);
+        p.quadraticCurveTo(b.x, b.y, b.x + v2x / l2 * r, b.y + v2y / l2 * r);
+      }
+      const end = pts[pts.length - 1];
+      p.lineTo(end.x, end.y);
+      return p;
+    }
+
+    /* Timber-coloured body: dark outline, warm fill, gloss down the middle. */
     function drawBody(pts) {
       if (pts.length < 2) return;
       const w = CELL * .82;
+      const path = bodyPath(pts, CELL * .46);
+
       ctx.save();
       ctx.lineJoin = "round";
       ctx.lineCap = "round";
 
       ctx.strokeStyle = "rgba(0,0,0,.45)";
       ctx.lineWidth = w + 7;
-      tracePath(pts); ctx.stroke();
+      ctx.stroke(path);
 
       ctx.strokeStyle = "#5a3115";
       ctx.lineWidth = w;
-      tracePath(pts); ctx.stroke();
+      ctx.stroke(path);
 
       const fill = ctx.createLinearGradient(0, 0, 0, canvas.height);
       fill.addColorStop(0, "#f0b574");
@@ -270,12 +321,12 @@
       fill.addColorStop(1, "#c8813d");
       ctx.strokeStyle = fill;
       ctx.lineWidth = w - 7;
-      tracePath(pts); ctx.stroke();
+      ctx.stroke(path);
 
-      ctx.strokeStyle = "rgba(255,240,215,.45)";
-      ctx.lineWidth = w * .2;
-      tracePath(pts.map(p => ({ x: p.x, y: p.y - w * .2 })));
-      ctx.stroke();
+      // centred gloss — it follows the tube exactly, so bends stay clean
+      ctx.strokeStyle = "rgba(255,240,214,.28)";
+      ctx.lineWidth = (w - 7) * .34;
+      ctx.stroke(path);
       ctx.restore();
     }
 
@@ -381,7 +432,7 @@
       if (apple) drawCherries(apple, time);
       drawGold(time);
 
-      const pts = snakePoints(t);
+      const pts = wiggle(snakePoints(t), time);
       drawBody(pts);
       drawHead(pts[0], time);
 
@@ -424,7 +475,9 @@
       last = now;
       if (state === "playing") {
         acc += dt;
-        while (acc >= stepMs && state === "playing") { acc -= stepMs; step(); }
+        let budget = 2;   // more than this in one frame and the snake visibly jumps
+        while (acc >= stepMs && budget-- > 0 && state === "playing") { acc -= stepMs; step(); }
+        if (acc >= stepMs) acc = 0;
       }
       draw(now, state === "playing" ? Math.min(1, acc / stepMs) : 1);
       requestAnimationFrame(frame);
@@ -464,6 +517,7 @@
       setStepMs(ms) { stepMs = Math.max(20, Math.min(400, ms)); emit("change", snapshot()); },
       setAutoSpeed(on) { autoSpeed = !!on; },
       setWrap(on) { wrapMode = !!on; emit("change", snapshot()); },
+      setWiggle(on) { wiggleOn = !!on; },
       setSound(on) { sfx = !!on; if (on) initAudio(); },
       get state() { return state; },
       get stats() { return snapshot(); },

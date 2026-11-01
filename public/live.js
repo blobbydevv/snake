@@ -16,6 +16,7 @@
     autopilot: true,
     speed: "normal",
     shortcuts: true,
+    wiggle: true,
     mode: "vote",            // "vote" = majority per window, "chaos" = last comment wins
     voteWindowMs: 1200,
     autoRestart: true,
@@ -390,6 +391,7 @@
   }
 
   wireToggle("sfxbtn", "sound", ["Sound off", "Sound on"], v => game.setSound(v));
+  wireToggle("wigglebtn", "wiggle", ["Shiver off", "Shiver on"], v => game.setWiggle(v));
   wireToggle("autobtn", "autoRestart", ["Manual restart", "Auto restart"], null);
   wireToggle("shortbtn", "shortcuts", ["Pure loop", "Loop + shortcuts"], null);
 
